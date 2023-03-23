@@ -1,0 +1,6 @@
+.idea/
+bin/
+
+*.o
+*.class
+Test.java
