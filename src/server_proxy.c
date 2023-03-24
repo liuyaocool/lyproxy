@@ -12,14 +12,14 @@
 int connect_host_sock(const char *, const char *);
 
 int main(int argc, char *argv[]) {
-    if (argc < 3){
-        printf("Usage: %s <locap_port> <secret>\n", argv[0]);
-        exit(0);
+    if(FALSE == proxy_stop_mode_check(argc, argv, SERVER) || argc < (P_CLIENT_IDX + 1)) {
+        printf(P_COMMON_USAGE" (start:secret)\n", argv[0]);
+        return 0;
     }
 
-    key_init(argv[2]);
+    key_init(argv[P_CLIENT_IDX]);
 
-    int local_port = atoi(argv[1]);
+    int local_port = atoi(argv[P_PORT_IDX]);
 
     signal(SIGCHLD, sigchld_handler); // 防止子进程变成僵尸进程
 
@@ -28,7 +28,9 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-    printf("open server port: %d \n", local_port);
+    printf("open server port(%d): %d \n", server_sock, local_port);
+
+    proxy_save_pid(SERVER, argv[P_PORT_IDX]);
  
     // 子进程
     // pid_t pid = fork();

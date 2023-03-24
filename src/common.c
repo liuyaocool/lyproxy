@@ -9,6 +9,8 @@
 #include <netdb.h>
 #include <string.h>
 #include <unistd.h> // fork close
+#include <sys/stat.h> // mkdir()
+#include <signal.h>
 
 #ifdef __APPLE__
 
@@ -16,8 +18,6 @@
 #include <wait.h>
 #endif
 
-#define BOL_TRUE 1
-#define BOL_FALSE 0
 #define BUF_SIZE 8192 // 16*n
 #define LOG_ERR(fmt...)  do { fprintf(stderr,"[%s %s - %s] ",__DATE__,__TIME__, strerror(errno)); fprintf(stderr, ##fmt); } while(0)
 #define IS_HTTP_CRLF(buf, pos) ('\r' == buf[pos] && '\n' == buf[pos+1])
@@ -198,4 +198,90 @@ int fork_forward(int src_sock, int target_sock, enum CryptMode mode) {
     shutdown(target_sock, SHUT_RDWR); 
     shutdown(src_sock, SHUT_RDWR); 
     exit(0);
+}
+
+#define CMD_START "start"
+#define CMD_STOP "stop"
+
+#define PID_PATH "/tmp/lyproxy/"
+#define PID_PATH_LEN (sizeof(PID_PATH)-1+6+1+5)
+#define PID_LENGTH 10
+
+enum ClientMode {
+    SERVER, CLIENT
+};
+
+void proxy_get_pid_path(char *target, enum ClientMode mode, const char *port) {
+    if (access(PID_PATH, F_OK) != 0) {
+        if (mkdir(PID_PATH, 0777) == 0) {
+        printf("mkdir %s\n", PID_PATH);
+        }
+    }
+    strcat(target, PID_PATH);
+    switch (mode) {
+        case SERVER: strcat(target, "server");break;
+        case CLIENT: strcat(target, "client");break;
+        default: break;
+    }
+    strcat(target, "-");
+    strcat(target, port);
+}
+
+void proxy_save_pid(enum ClientMode mode, const char *port) {
+    int pid = getpid();
+    FILE *f;
+    char pid_path[PID_PATH_LEN] = "", pid_str[PID_LENGTH] = "";
+    proxy_get_pid_path(pid_path, mode, port);
+    f = fopen(pid_path, "w");
+    if(f == NULL) {
+        printf("can not open file: %s\n", pid_path);
+        perror("cause by");
+        return;
+    }
+    sprintf(pid_str, "%d", pid);
+    fwrite(pid_str, sizeof(char), sizeof(pid_str), f);
+    // strcat(pid_str, "\n");
+    // fputs(pid_str, f);
+    fclose(f);
+}
+
+void proxy_stop(enum ClientMode mode, const char *port) {
+    FILE *f;
+    int pid;
+    char pid_path[PID_PATH_LEN] = "", pid_str[PID_LENGTH] = "";
+    proxy_get_pid_path(pid_path, mode, port);
+    f = fopen(pid_path, "r");
+    if(f == NULL) {
+        printf("can not open file: %s\n", pid_path);
+        perror("cause by");
+        return;
+    }
+    fread(pid_str, sizeof(char), PID_LENGTH, f);
+    fclose(f);
+    pid = atoi(pid_str);
+    // kill(pid, SIGTERM);
+    kill(-pid, SIGKILL);
+}
+
+#define P_MODE_IDX 1
+#define P_PORT_IDX 2
+#define P_CLIENT_IDX 3
+#define P_COMMON_USAGE "Usage: %s <start/stop> <locap_port>"
+
+enum BOL proxy_stop_mode_check(int argc, char *argv[], enum ClientMode mode) {
+    if(argc < (P_CLIENT_IDX-1)) {
+        return FALSE;
+    }
+    if(strcmp(argv[P_MODE_IDX], CMD_STOP) == 0) {
+        if (argc < P_CLIENT_IDX){
+            printf("Usage: %s stop <locap_port>\n", argv[0]);
+            exit(0);
+        }
+        proxy_stop(mode, argv[P_PORT_IDX]);
+        exit(0);
+    }
+    if(strcmp(argv[P_MODE_IDX], CMD_START) != 0) {
+        return FALSE;
+    }
+    return TRUE;
 }

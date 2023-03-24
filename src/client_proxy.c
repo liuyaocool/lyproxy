@@ -32,18 +32,21 @@ int analyse_http(const char* buf, long buf_len, char *host, char *port);
 
 int main(int argc, char *argv[])
 {
-    if (argc < 5){
-        printf("Usage: %s <locap_port> <remote_ip> <remopt_port> <secret>\n", argv[0]);
-        exit(0);
+    if(FALSE == proxy_stop_mode_check(argc, argv, CLIENT) || argc < (P_CLIENT_IDX + 3)) {
+        printf(P_COMMON_USAGE" (start:remote_ip) (start:remopt_port) (start:secret)\n", argv[0]);
+        return 0;
     }
 
-    key_init(argv[4]);
+    char *rip, *rport;
+    rip = argv[P_CLIENT_IDX];
+    rport = argv[P_CLIENT_IDX+1];
+    key_init(argv[P_CLIENT_IDX + 2]);
 
-    int local_port = atoi(argv[1]);
+    int local_port = atoi(argv[P_PORT_IDX]);
     struct sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = inet_addr(argv[2]);
-    server_addr.sin_port = htons(atoi(argv[3]));
+    server_addr.sin_addr.s_addr = inet_addr(rip);
+    server_addr.sin_port = htons(atoi(rport));
     
     signal(SIGCHLD, sigchld_handler); // 防止子进程变成僵尸进程
 
@@ -53,6 +56,7 @@ int main(int argc, char *argv[])
     }
 
     printf("open client port: %d \n", local_port);
+    proxy_save_pid(CLIENT, argv[P_PORT_IDX]);
 
     struct sockaddr_in client_addr;
     socklen_t addrlen = sizeof(client_addr);
@@ -88,7 +92,7 @@ int main(int argc, char *argv[])
 
         int remote_sock;
         if ((remote_sock = create_connect_socket(&server_addr)) < 0) {
-            LOG("Cannot connect to host [%s:%s] \n", argv[2], argv[3]);
+            LOG("Cannot connect to host [%s:%s] \n", rip, rport);
             break;
         }
 
