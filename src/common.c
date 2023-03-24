@@ -259,7 +259,7 @@ void proxy_stop(enum ClientMode mode, const char *port) {
     fread(pid_str, sizeof(char), PID_LENGTH, f);
     fclose(f);
     pid = atoi(pid_str);
-    // kill(pid, SIGTERM);
+    kill(pid, SIGTERM);
     kill(-pid, SIGKILL);
 }
 
