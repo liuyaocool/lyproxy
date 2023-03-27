@@ -16,7 +16,8 @@ import java.util.function.BiConsumer;
  */
 public class ClientProxy extends Thread {
 
-    static final boolean log = false;
+    static final boolean logInfo = false;
+    static final boolean logErr = true;
 
     static final char KEY_EN[] = new char[256], KEY_DE[] = new char[256];
     static final char ENCRYPT = 'E'; // 加密模式
@@ -73,10 +74,10 @@ public class ClientProxy extends Thread {
     }
 
     static void logInfo(String format, Object... param) {
-        if (log) LOG_QUEUE.add(new Object[] {System.out, format, param});
+        if (logInfo) LOG_QUEUE.add(new Object[] {System.out, format, param});
     }
     static void logErr(String format, Object... param) {
-        if (log) LOG_QUEUE.add(new Object[] {System.err, format, param});
+        if (logErr) LOG_QUEUE.add(new Object[] {System.err, format, param});
     }
 
     static int hexToInt(char c) {
@@ -231,10 +232,10 @@ public class ClientProxy extends Thread {
     }
 
     static int recv(SocketChannel client, ClientProxy ev, boolean ifDecode) {
-        int read_len;
+        int read_len = -1;
         try {
             ev.buf.clear();
-            if ((read_len = client.read(ev.buf)) <= 0) {
+            if (!client.isConnected() || (read_len = client.read(ev.buf)) <= 0) {
                 return read_len;
             }
         } catch (IOException e) {
@@ -266,11 +267,7 @@ public class ClientProxy extends Thread {
             if (server.isConnected()) server.write(buffer);
         } catch (IOException e) {
             // e.printStackTrace();
-            try {
-                logErr("send err %s: %s", server.getRemoteAddress(), e.getMessage());
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            logErr("send err: %s", e.getMessage());
         }
         buffer.clear();
     }
