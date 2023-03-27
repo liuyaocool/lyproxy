@@ -2,11 +2,15 @@
 
 # 前提
 
-## linux 
+## linux
 
-需要gcc make
+gcc make
 
-- ubuntu: ` apt install gcc make `
+- Ubuntu: ` apt install gcc make `
+- Termux(安卓): ` pkg install gcc make `
+- Gentoo: ` emerge --ask gcc make `
+- ArchLinux: ` pacman -S gcc make `
+- ...
 
 # 生成16进制乱序串
 
