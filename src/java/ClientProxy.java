@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 
 /**
@@ -31,7 +30,7 @@ public class ClientProxy extends Thread {
     public static void main(String[] args) throws Exception {
         if (args.length < 4) {
             System.out.println("Usage: java ClientProxy <local_port> <remote_ip> <remote_port> <secret> (<worker_thread_num>)");
-            return;
+            System.exit(0);
         }
         int i = 0;
         int localPort = Integer.parseInt(args[i++]);
