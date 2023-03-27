@@ -17,7 +17,7 @@ import java.util.function.BiConsumer;
  */
 public class ClientProxy extends Thread {
 
-    static final boolean log = true;
+    static final boolean log = false;
 
     static final char KEY_EN[] = new char[256], KEY_DE[] = new char[256];
     static final char ENCRYPT = 'E'; // 加密模式
@@ -155,6 +155,7 @@ public class ClientProxy extends Thread {
         // 发送 connect 请求
         send(server, ev.buf, encode, false);
         // 接收 connect 结果
+        byte[] bufData = ev.bufData;
         while ((read_len = recv(server, ev, true)) <= 0) {
             try {Thread.sleep(100);} catch (InterruptedException e) {}
         }
@@ -165,6 +166,7 @@ public class ClientProxy extends Thread {
             close(key, client, server);
             return;
         }
+        ev.bufData = bufData;
         logInfo("connect over(%s): %d %s", isHttps ? "https" : "http", read_len, hostPort);
 
         ev.mode = ENCRYPT;
@@ -183,10 +185,12 @@ public class ClientProxy extends Thread {
         if (isHttps) {
             send(client, ev.buf, CONNECT_OK, false);
         } else {
+            logInfo("---send0---:\n%s", new String(ev.bufData, StandardCharsets.UTF_8));
             send(server, ev.buf, ev.bufData, true);
             // 剩余数据转发
             while ((read_len = recv(client, ev, false)) > 0) {
                 send(server, ev.buf, ev.bufData, true);
+                logInfo("---send1---:\n%s", new String(ev.bufData, StandardCharsets.UTF_8));
             }
             if (read_len < 0){
                 logErr("%s first http read len: %d", hostPort, read_len);
@@ -309,9 +313,9 @@ public class ClientProxy extends Thread {
                             ByteBuffer.allocate(8192), ClientProxy::firstRecv, "");
                     att.selector = this.selector;
                     long t = System.currentTimeMillis();
-                    logInfo("registry");
+                    logInfo("registry start %s", selector);
                     ch.register(selector, SelectionKey.OP_READ, att);
-                    logInfo("registry end(%s ms) to %s：%s -> %s", System.currentTimeMillis() - t, selector, ch.getLocalAddress(), ch.getRemoteAddress());
+                    logInfo("registry end(%s ms) %s：%s -> %s", System.currentTimeMillis() - t, selector, ch.getLocalAddress(), ch.getRemoteAddress());
                 }
                 if ((select = selector.select(100)) <= 0) continue;
             } catch (Exception e) {
