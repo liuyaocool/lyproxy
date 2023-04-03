@@ -19,8 +19,3 @@ key_gen:
 clean:
 	rm -rf target
 	rm -rf bin
-
-help:
-
-
-
