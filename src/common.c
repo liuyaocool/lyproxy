@@ -19,7 +19,8 @@
 #define BOL_TRUE 1
 #define BOL_FALSE 0
 #define BUF_SIZE 8192 // 16*n
-#define LOG_ERR(fmt...)  do { fprintf(stderr,"[%s %s - %s] ",__DATE__,__TIME__, strerror(errno)); fprintf(stderr, ##fmt); } while(0)
+#define LOG(fmt...)  do { fprintf(stderr,"[%s %s - %s (%d)] ",__DATE__,__TIME__, strerror(errno), getpid()); fprintf(stderr, ##fmt); } while(0)
+#define LOG_ERR(fmt...)  do { fprintf(stderr,"[%s %s - %s (%d)] ",__DATE__,__TIME__, strerror(errno), getpid()); fprintf(stderr, ##fmt); } while(0)
 #define IS_HTTP_CRLF(buf, pos) ('\r' == buf[pos] && '\n' == buf[pos+1])
 
 enum CryptMode {
@@ -158,6 +159,7 @@ void sigchld_handler(int signal) {
 
 int recv_data(int fd, char *buf, int buf_len, enum BOL isde) {
     int n = recv(fd, buf, buf_len, 0);
+    // printf("---------recv------------\n%s\n", buf);
     if (TRUE == isde) {
         // printf("---------recv------------\n");
         // print_num(buf, buf_len);

@@ -3,6 +3,7 @@ mkf_abpath	:= $(patsubst %Makefile, %, $(abspath $(MAKEFILE_LIST)))
 all:
 	@echo --- make server ---
 	@echo --- make client ---
+	@echo --- make forward ---
 	@echo --- make key_gen ---
 
 %:
