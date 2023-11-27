@@ -38,7 +38,7 @@ public class ClientProxy extends Thread {
         serverIp = args[i++];
         serverPort = Integer.parseInt(args[i++]);
         key_init(args[i++]);
-        int workers = args.length >= i ? Integer.parseInt(args[i]) : 10;
+        int workers = args.length > i ? Integer.parseInt(args[i]) : 10;
 
         // 开启端口
         ServerSocketChannel server = ServerSocketChannel.open();
