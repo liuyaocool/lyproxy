@@ -3,7 +3,9 @@ bin/
 test/
 out/
 target/
+.vscode/
 
 *.out
 *.o
 *.class
+*.iml
