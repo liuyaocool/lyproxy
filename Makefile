@@ -8,11 +8,11 @@ all:
 
 %:
 	mkdir -p bin/
-	gcc -o bin/$*_proxy $*_proxy.c
+	gcc -o bin/proxy_$* src/$*_proxy.c
 
 key_gen:
 	mkdir -p bin/
-	gcc key_gen.c -o bin/key_gen && ./bin/key_gen 0
+	gcc src/key_gen.c -o bin/key_gen && ./bin/key_gen 0
 
 # 伪目标
 .PHONY: clean
