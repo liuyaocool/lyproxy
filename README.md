@@ -16,18 +16,16 @@ gcc make
 # 生成16进制乱序串
 
 ```shell
-cd src
 make key_gen
 ```
 
 # server 端启动
 
 ```shell
-cd src
 # 编译
 make server
 # 启动
-./bin/server_proxy 本地端口 乱序串
+./bin/proxy_server 本地端口 乱序串
 ```
 
 # client 端 (c)
@@ -35,11 +33,10 @@ make server
 支持 linux, mac, android(termux), ios(ish)
 
 ```shell
-cd src
 # 编译
 make client
 # 启动
-./bin/client_proxy 本地端口 server端ip server端端口 乱序串
+./bin/proxy_client 本地端口 server端ip server端端口 乱序串
 ```
 
 # client 端 (java)
