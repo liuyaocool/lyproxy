@@ -1,0 +1,25 @@
+#!/bin/bash
+
+mkdir -p /tmp/lyproxy
+log_path=/tmp/lyproxy/client.log
+
+p=./client_proxy
+secret1=
+# 检查参数个数
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <strategy>"
+    echo "  strategy is:"
+    echo "      n1: 1year"
+    exit 1
+fi
+
+# 根据参数执行不同的代码
+case $1 in
+    "n1")
+        $p 9201 127.0.0.1 2052 $secret1 > ${log_path} 2>&1 &
+        ;;
+    *)
+        echo "strategy <$1> not support"
+        exit 1
+        ;;
+esac
