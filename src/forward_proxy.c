@@ -1,7 +1,3 @@
-#include <signal.h>
-#include <stdlib.h> // exit
-#include <unistd.h>
-
 #include "common.c"
 
 int main(int argc, char *argv[]) {

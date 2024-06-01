@@ -1,14 +1,16 @@
 #include <stdio.h>
-#include <stdlib.h> // atoi
+#include <stdlib.h> // atoi exit
 #include <sys/socket.h>
 #include <netinet/in.h> // sockaddr_in sizeof
 #include <arpa/inet.h> // htons inet_addr
 #include <errno.h>
 // #include <sys/wait.h>
 #include <pthread.h>
-#include <netdb.h>
-#include <string.h>
+#include <netdb.h> // gethostbyname
+#include <string.h> // strerror
 #include <unistd.h> // fork close
+#include <stdbool.h>
+#include <signal.h>
 
 #ifdef __APPLE__
 
@@ -200,4 +202,52 @@ int fork_forward(int src_sock, int target_sock, enum CryptMode mode) {
     shutdown(target_sock, SHUT_RDWR); 
     shutdown(src_sock, SHUT_RDWR); 
     exit(0);
+}
+
+
+int strToInt(const char* str, int start, int end) {
+    int ret = 0;
+    int ratio = 1;
+    for (; end >= start; end--)
+    {
+        ret += (str[end] - '0') * ratio;
+        ratio *= 10;
+    }
+    return ret;
+}
+
+bool is_ipv4(const char* str) {
+    size_t len = strlen(str);
+    int part_start_idx = 0, p_num = 0, i, num;
+    if (str[0] == '0')
+        return false;
+    for (i = 0; i < len; i++) {
+        if (str[i] == '\0')
+            break;
+        if (str[i] == '.') // 是 .
+        {
+            if (p_num == 3 || strToInt(str, part_start_idx, i-1) > 255)
+                return false;
+            p_num++;
+            part_start_idx = i+1;
+        }
+        else if (str[i] < 48 || str[i] > 57)
+            return false;
+    }
+    return true;
+}
+
+bool get_sockaddr_in(struct sockaddr_in *server_addr, const char *hostOrIp, const char *port) {
+    struct hostent *server;
+    server_addr->sin_family = AF_INET;
+    server_addr->sin_port = htons(atoi(port));
+    if (is_ipv4(hostOrIp)) {
+        server_addr->sin_addr.s_addr = inet_addr(hostOrIp);
+        return true;
+    }
+    if(NULL == (server = gethostbyname(hostOrIp))) {
+        return false;
+    }
+    memcpy(&server_addr->sin_addr.s_addr, server->h_addr_list[0], server->h_length);
+    return true;
 }

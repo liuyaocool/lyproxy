@@ -1,15 +1,15 @@
-// #include <arpa/inet.h>
-// #include <netdb.h>
-#include <signal.h>
-// #include <stdio.h> // fprint
-#include <stdlib.h> // exit
-// #include <string.h> // strerror
-// #include <sys/socket.h>
-// #include <unistd.h> // fork close
 
 #include "common.c"
 
-int connect_host_sock(const char *, const char *);
+// 连接
+int connect_host_sock(const char *host, const char *port) {
+    struct sockaddr_in server_addr;
+    if(!get_sockaddr_in(&server_addr, host, port)) {
+        LOG_ERR("Unknown host: %s\n", host);
+        return -1;
+    }
+    return create_connect_socket(&server_addr);
+}
 
 int main(int argc, char *argv[]) {
     if (argc < 3){
@@ -78,6 +78,7 @@ int main(int argc, char *argv[]) {
             goto g_over;
         }
 
+        // -3: protocol`s first package ending
         memcpy(remote_port, &remote_host[i+1], strlen(remote_host) - i -3);
         memset(&remote_host[i], 0, 120-i);
 
@@ -103,20 +104,4 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
     return 0;
-}
-
-
-// 连接
-int connect_host_sock(const char *host, const char *port) {
-    struct sockaddr_in server_addr;
-    struct hostent *server;
-    if(NULL == (server = gethostbyname(host))) {
-        LOG_ERR("Unknown host: %s\n", host);
-        return -1;
-    }
-
-    server_addr.sin_family = AF_INET;
-    memcpy(&server_addr.sin_addr.s_addr, server->h_addr_list[0], server->h_length);
-    server_addr.sin_port = htons(atoi(port));
-    return create_connect_socket(&server_addr);
 }

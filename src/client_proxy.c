@@ -1,16 +1,6 @@
-#include <arpa/inet.h>
-#include <errno.h>
 #include <libgen.h>
-#include <netdb.h>
 #include <resolv.h>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
 #include <sys/wait.h>
-#include <netinet/in.h>
-#include <string.h>
 
 #include "common.c"
 
@@ -33,7 +23,7 @@ int analyse_http(const char* buf, long buf_len, char *host, char *port);
 int main(int argc, char *argv[])
 {
     if (argc < 5){
-        printf("Usage: %s <locap_port> <remote_ip> <remopt_port> <secret>\n", argv[0]);
+        printf("Usage: %s <locap_port> <remote_ip/domain> <remopt_port> <secret>\n", argv[0]);
         exit(0);
     }
 
@@ -41,9 +31,7 @@ int main(int argc, char *argv[])
 
     int local_port = atoi(argv[1]);
     struct sockaddr_in server_addr;
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = inet_addr(argv[2]);
-    server_addr.sin_port = htons(atoi(argv[3]));
+    get_sockaddr_in(&server_addr, argv[2], argv[3]);
     
     signal(SIGCHLD, sigchld_handler); // 防止子进程变成僵尸进程
 

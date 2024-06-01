@@ -9,3 +9,5 @@ target/
 *.o
 *.class
 *.iml
+*.swp
+*.zip
