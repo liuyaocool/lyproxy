@@ -1,0 +1,8 @@
+#!/bin/bash
+
+mkdir -p /tmp/lyproxy
+log_path=/tmp/lyproxy/server.log
+
+nohup ./lib/server_proxy 6161 \
+key \
+> ${log_path} 2>&1  &

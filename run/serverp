@@ -1,5 +1,0 @@
-#!/bin/bash
-mkdir -p logs
-nohup ./lib/server_proxy <port> \
-<key> \
-> logs/server_proxy.log 2>&1 &
