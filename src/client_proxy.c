@@ -80,9 +80,9 @@ int main(int argc, char *argv[])
             break;
         }
 
-        send_data(remote_sock, remote_host, strlen(remote_host), TRUE);
+        send_data(remote_sock, remote_host, strlen(remote_host), true);
         memset(remote_port, 0, 5);
-        int n = recv_data(remote_sock, remote_port, 5, TRUE);
+        int n = recv_data(remote_sock, remote_port, 5, true);
         if (n <= 0) {
             printf("connect remote fail, len: %d\n", n);
             goto g_over2;
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
                 goto g_over2;
             }
         } else if(IS_HTTP == is_http_tunnel) {
-            send_data(remote_sock, buf, read_len, TRUE);
+            send_data(remote_sock, buf, read_len, true);
         }
 
         // browser -> server_proxy

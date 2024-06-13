@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
         char remote_port[5];
         memset(remote_host, 0, 120);
         memset(remote_port, 0, 5);
-        int read_len = recv_data(client_sock, remote_host, 120, TRUE);
+        int read_len = recv_data(client_sock, remote_host, 120, true);
         if (0 == read_len) {
             goto g_over;
         } else if (read_len < 0) {
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
 
         memset(&remote_port[3], 0, 2);
         memcpy(remote_port, "200", 3);
-        send_data(client_sock, remote_port, 3, TRUE);
+        send_data(client_sock, remote_port, 3, true);
 
         // client_proxy -> remote
         fork_forward(client_sock, remote_sock, DECRYPT);

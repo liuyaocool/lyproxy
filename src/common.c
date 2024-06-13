@@ -31,8 +31,6 @@ enum CryptMode {
     NONE
 };
 
-enum BOL { TRUE, FALSE };
-
 void print_num(char *buf, int len) {
     int i;
     len = strlen(buf);
@@ -55,7 +53,7 @@ int hexToInt(unsigned char c) {
     return -1;    
 }
 
-void key_init(char *secret) {
+void key_init(const char *secret) {
     int i;
     for (i = 0; i < 256; i++) {
         key_en[i] = hexToInt((unsigned char) secret[i*2]) * 16 
@@ -159,10 +157,10 @@ void sigchld_handler(int signal) {
     while (waitpid(-1, NULL, WNOHANG) > 0);
 }
 
-int recv_data(int fd, char *buf, int buf_len, enum BOL isde) {
+int recv_data(int fd, char *buf, int buf_len, bool isde) {
     int n = recv(fd, buf, buf_len, 0);
     // printf("---------recv------------\n%s\n", buf);
-    if (TRUE == isde) {
+    if (isde) {
         // printf("---------recv------------\n");
         // print_num(buf, buf_len);
         encode_map(buf, buf_len, DECRYPT);
@@ -171,8 +169,8 @@ int recv_data(int fd, char *buf, int buf_len, enum BOL isde) {
     return n;
 }
 
-int send_data(int fd, char *buf, int buf_len, enum BOL isen) {
-    if (TRUE == isen) {
+int send_data(int fd, char *buf, int buf_len, bool isen) {
+    if (isen) {
         // printf("---------send %d %s------------\n", buf_len, buf);
         // print_num(buf, buf_len);
         encode_map(buf, buf_len, ENCRYPT);
@@ -189,10 +187,10 @@ int fork_forward(int src_sock, int target_sock, enum CryptMode mode) {
     }
     char buf[BUF_SIZE];
     int n;
-    enum BOL if_recv_de = FALSE, if_send_en = FALSE;
+    bool if_recv_de = false, if_send_en = false;
     switch (mode) {
-        case ENCRYPT: if_send_en = TRUE; break;
-        case DECRYPT: if_recv_de = TRUE; break;
+        case ENCRYPT: if_send_en = true; break;
+        case DECRYPT: if_recv_de = true; break;
         default: break;
     }
 

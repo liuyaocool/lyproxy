@@ -47,7 +47,7 @@ void print_key(char* key){
 
 int main(int argc, char const *argv[]) {
     if (argc < 2) {
-        printf("Usage: %s <1(print key col row number) | other> (<1~255(check key)>)\n", argv[1]);
+        printf("Usage: %s <0:key/1:key_table> (<check:1~255>)\n", argv[0]);
         return 0;
     }
     
@@ -71,12 +71,13 @@ int main(int argc, char const *argv[]) {
     key_hex[512] = '\0';
     convert_key_hex(key_en_t, key_hex);
     
-    printf("--- key :---\n%s\n", key_hex);
-    
     key_init(key_hex);
 
     int type = atoi(argv[1]);
     switch (type) {
+        case 0:
+            printf("--- key :---\n%s\n", key_hex);
+            break;
         case 1:
             print_key(key_en);
             convert_key_hex(key_en, key_hex);
