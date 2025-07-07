@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in client_addr;
     socklen_t addrlen = sizeof(client_addr);
 
-    while (1) {
+    for(;;) {
         client_sock = accept(server_sock, (struct sockaddr*)&client_addr, &addrlen);
         if (fork() != 0) { // 创建子进程处理客户端连接请求
             close(client_sock);
