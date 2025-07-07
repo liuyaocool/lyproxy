@@ -1,0 +1,13 @@
+.idea/
+bin/
+test/
+out/
+target/
+.vscode/
+
+*.out
+*.o
+*.class
+*.iml
+*.swp
+*.zip
