@@ -15,7 +15,7 @@
 #ifdef __APPLE__
 
 #else
-#include <wait.h>
+#include <sys/wait.h>
 #endif
 
 #define BOL_TRUE 1
